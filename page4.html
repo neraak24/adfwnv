@@ -1,102 +1,63 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <link rel="stylesheet" type="text/css" href="index.css" />
-    <title>Teste Arranjo de Figuras</title>
-    <imagetitle></imagetitle>
-  </head>
-  <body>
-    <style>
- body {
-    background-color: powderblue;
-  }
-.title {
-    font-size: 1.5rem;
-    text-align: center;
-    font-family: sans-serif
-  }
-  .dragme {
-    position: relative;
-    cursor: move;
-    width: 275px;
-    max-width: 100%; /* Ensures images don't overflow their container */
-    height: auto; /* Maintains aspect ratio */
-  }
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="index.css">
+  <title>Teste Arranjo de Figuras</title>
+</head>
 
-  .draggable {
-    background-color: #ccc;
-    border: 1px solid #000;
-  }
-  .container {
-    display: flex;
-    flex-wrap: wrap; /* Allows images to wrap to the next line */
-    align-items: center;
-    justify-content: center; /* Centers images horizontally */
-    gap: 10px; /* Adds space between images */
-    margin: 15px;
-  }
-  .linkContainer {
-    position: fixed;  /* Keeps it in place even when scrolling */
-    right: 10px;      /* Places it on the right side */
-    top: 50%;         /* Positions it in the vertical center */
-    transform: translateY(-50%); /* Centers it vertically */
-    padding: 0;       /* Remove unnecessary padding */
-    text-align: right; /* Ensures proper alignment */
-  }
-  .linkinicio {
-    display: flex; /* Use flexbox for centering */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-  }
-  .linkinicio img {
-    height: auto; /* Maintain aspect ratio */
-    display: block;
-  }
-    </style>
-    <h1 class="title">Arraste a imagem na ordem correta</h1>
-    <div class="container">
-        <img
-        src="./corre/corre1.png"
-        alt="drag-and-drop image script"
-        title="drag-and-drop image script"
-        class="dragme"
-        id="1"
-      />
-      <img
-        src="./corre/corre2.png"
-        alt="drag-and-drop image script"
-        title="drag-and-drop image script"
-        class="dragme"
-      />
-      <img
-        src="./corre/corre3.png"
-        alt="drag-and-drop image script"
-        title="drag-and-drop image script"
-        class="dragme"
-      />
-      <img
-        src="./corre/corre4.png"
-        alt="drag-and-drop image script"
-        title="drag-and-drop image script"
-        class="dragme"
-      />
-      <img
-        src="./corre/corre5.png"
-        alt="drag-and-drop image script"
-        title="drag-and-drop image script"
-        class="dragme"
-      />
-    </div>
-    <div class="linkContainer">
-      <a class="link" href="./page5.html"> 
-      <img 
-        src="./outros/7604747.png"; 
-        width="11%"
-        alt="próximo"></a>
-    </div>
-  </body>
+<body>
+
+  <h1 class="title">Arraste a imagem na ordem correta</h1>
+
+  <div class="container">
+      <img src="./corre/corre1.png" alt="drag-and-drop image script" title="drag-and-drop image script" class="dragme" data-order="1">
+      <img src="./corre/corre2.png" alt="drag-and-drop image script" title="drag-and-drop image script" class="dragme" data-order="2">
+      <img src="./corre/corre3.png" alt="drag-and-drop image script" title="drag-and-drop image script" class="dragme" data-order="3">
+      <img src="./corre/corre4.png" alt="drag-and-drop image script" title="drag-and-drop image script" class="dragme" data-order="4">
+      <img src="./corre/corre5.png" alt="drag-and-drop image script" title="drag-and-drop image script" class="dragme" data-order="5">
+  </div>
+
+  <div class="linkContainer">
+    <a class="link" href="./page5.html">
+      <img src="./outros/7604747.png" width="45%" alt="próximo">
+    </a>
+  </div>
+
 <script>
-   let highestZ = 1; // Track highest z-index
+let highestZ = 1;
+let drag = false;
+let dragTarget = null;
+let offsetX, offsetY, coordX, coordY;
+let cards = [];
+let slots = [];
+
+function calcularSlots() {
+  const cardWidth = 246;
+  const maxSpacing = 280;
+  const minSpacing = 150;
+  const margem = 60;
+  const disponivel = window.innerWidth - margem;
+  let spacingX = Math.min(maxSpacing, disponivel / cards.length);
+  spacingX = Math.max(minSpacing, spacingX);
+
+  // se o espaçamento ficar menor que a carta, reduz a largura das cartas
+  const largura = spacingX < cardWidth + 16 ? Math.max(140, spacingX - 16) : cardWidth;
+  cards.forEach(function (c) {
+    var fator = parseFloat(c.dataset.scale) || 1;
+    c.style.width = (largura * fator) + "px";
+  });
+
+  const totalWidth = spacingX * (cards.length - 1) + largura;
+  const startX = (window.innerWidth - totalWidth) / 2;
+  const startY = 180;
+
+  slots = [];
+  cards.forEach(function (img, i) {
+    slots.push({ x: startX + i * spacingX, y: startY });
+  });
+  return spacingX;
+}
 
 function startDrag(e) {
   if (!e) e = window.event;
@@ -105,34 +66,154 @@ function startDrag(e) {
   let targ = e.target ? e.target : e.srcElement;
   if (!targ.classList.contains("dragme")) return;
 
-  targ.style.zIndex = ++highestZ; // Bring dragged image to the front
+  dragTarget = targ;
+  dragTarget.style.zIndex = ++highestZ;
 
   offsetX = e.clientX;
   offsetY = e.clientY;
 
-  coordX = parseInt(targ.style.left || 0);
-  coordY = parseInt(targ.style.top || 0);
+  coordX = parseInt(dragTarget.style.left || 0);
+  coordY = parseInt(dragTarget.style.top || 0);
 
   drag = true;
-  document.onmousemove = dragDiv;
 }
 
 function dragDiv(e) {
-  if (!drag) return;
+  if (!drag || !dragTarget) return;
   if (!e) e = window.event;
 
-  let targ = e.target ? e.target : e.srcElement;
-  targ.style.left = coordX + e.clientX - offsetX + "px";
-  targ.style.top = coordY + e.clientY - offsetY + "px";
+  dragTarget.style.left = coordX + e.clientX - offsetX + "px";
+  dragTarget.style.top  = coordY + e.clientY - offsetY + "px";
 }
 
+let snapThreshold = 140;
+
 function stopDrag() {
+  if (dragTarget) {
+    var curX = parseInt(dragTarget.style.left || 0);
+    var curY = parseInt(dragTarget.style.top || 0);
+    var melhorIdx = -1, melhorDist = 99999;
+    slots.forEach(function (s, idx) {
+      var d = Math.hypot(curX - s.x, curY - s.y);
+      if (d < melhorDist) { melhorDist = d; melhorIdx = idx; }
+    });
+    if (melhorIdx !== -1 && melhorDist < snapThreshold) {
+      var slotAtual = dragTarget.dataset.slot;
+      var ocupante = null;
+      cards.forEach(function (c) {
+        if (c !== dragTarget && String(c.dataset.slot) === String(melhorIdx)) ocupante = c;
+      });
+      if (ocupante) {
+        ocupante.dataset.slot = slotAtual;
+        ocupante.style.left = slots[slotAtual].x + "px";
+        ocupante.style.top = slots[slotAtual].y + "px";
+      }
+      dragTarget.dataset.slot = melhorIdx;
+      dragTarget.style.left = slots[melhorIdx].x + "px";
+      dragTarget.style.top = slots[melhorIdx].y + "px";
+    }
+  }
   drag = false;
+  dragTarget = null;
 }
 
 window.onload = function () {
-  document.onmousedown = startDrag;
-  document.onmouseup = stopDrag;
+  document.addEventListener("mousedown", startDrag);
+  document.addEventListener("mousemove", dragDiv);
+  document.addEventListener("mouseup", stopDrag);
+
+  cards = Array.from(document.querySelectorAll(".dragme"));
+  var spacing = calcularSlots();
+  snapThreshold = spacing * 0.55;
+
+  cards.forEach(function (img, i) {
+    img.dataset.slot = i;
+    img.style.left = slots[i].x + "px";
+    img.style.top  = slots[i].y + "px";
+  });
 };
 </script>
+
+<script>
+(function () {
+  var HUB_URL = "https://bjzmlvsskhfrkvblvsjj.supabase.co";
+  var HUB_KEY = "sb_publishable_YEHAM35S4jsY_dKoN5mwzg_YOVoVWJR";
+  var token = sessionStorage.getItem("hub_token");
+
+  function nomeEtapa() {
+    var arq = location.pathname.split("/").pop().replace(".html", "");
+    return arq || "home";
+  }
+
+  function coletarSequenciaFinal() {
+    var cartas = Array.from(document.querySelectorAll(".dragme"));
+    if (!cartas.length) return null;
+    cartas.sort(function (a, b) {
+      return parseInt(a.dataset.slot || 0) - parseInt(b.dataset.slot || 0);
+    });
+    var sequencia = cartas.map(function (img) {
+      return img.getAttribute("data-order");
+    });
+    return { tipo: "sequencia", ordem_final: sequencia };
+  }
+
+  function capturarPrint() {
+    if (!token) return Promise.resolve();
+    var dados_cubo = coletarSequenciaFinal();
+    return fetch(HUB_URL + "/functions/v1/registrar-print", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": HUB_KEY },
+      body: JSON.stringify({ token: token, etapa: nomeEtapa(), dados_cubo: dados_cubo })
+    }).catch(function (e) {
+      console.log("Erro ao registrar resultado:", e);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var links = document.querySelectorAll(".linkContainer a.link, a.link");
+    links.forEach(function (a) {
+      a.addEventListener("click", function (ev) {
+        if (!token) return;
+        ev.preventDefault();
+        var destino = a.getAttribute("href");
+        capturarPrint().then(function () {
+          window.location.href = destino;
+        }).catch(function () {
+          window.location.href = destino;
+        });
+      });
+    });
+  });
+
+  if (token) {
+    var btnEncerrar = document.createElement("button");
+    btnEncerrar.textContent = "encerrar teste";
+    btnEncerrar.style.cssText = "position:fixed;bottom:8px;left:8px;z-index:99999;background:rgba(255,255,255,0.7);color:#3a6b3a;border:1px solid rgba(58,107,58,0.4);border-radius:5px;padding:4px 9px;font-size:11px;font-family:sans-serif;cursor:pointer;opacity:0.55;transition:opacity 0.2s;";
+    btnEncerrar.addEventListener("mouseenter", function () { btnEncerrar.style.opacity = "1"; });
+    btnEncerrar.addEventListener("mouseleave", function () { btnEncerrar.style.opacity = "0.55"; });
+    btnEncerrar.addEventListener("click", function () {
+      if (!confirm("Encerrar o teste agora? Esse link não poderá mais ser usado depois.")) return;
+      btnEncerrar.disabled = true;
+      btnEncerrar.textContent = "salvando...";
+      capturarPrint().then(function () {
+        return fetch(HUB_URL + "/functions/v1/concluir-sessao", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "apikey": HUB_KEY },
+          body: JSON.stringify({ token: token })
+        });
+      }).catch(function () {}).then(function () {
+        document.body.innerHTML = "<div style='min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:1.2rem;color:#333;text-align:center;padding:20px;background:#fff;'>Teste concluído. Obrigado!</div>";
+        sessionStorage.clear();
+      });
+    });
+    document.body.appendChild(btnEncerrar);
+  }
+
+  if (sessionStorage.getItem("categkids_ok") !== "1") {
+    window.location.href = "index.html";
+  }
+})();
+</script>
+
+</body>
 </html>

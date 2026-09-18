@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <title>Teste Arranjo de Figuras</title>
+    <imagetitle></imagetitle>
+    <style>
+      .title {
+       font-size: 1.5rem;
+        text-align: center;
+        font-family: sans-serif
+      }
+      body {
+        background: #cbf1ba
+      }
+      .linkinicio {
+      display: flex; /* Use flexbox for centering */
+       justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+      }
+      .linkinicio img {
+       height: auto; /* Maintain aspect ratio */
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="title">Teste Arranjo de Figuras</h1>
+    <div class="linkContainer.inicio">
+      <a class="linkinicio" href="./page1.html">
+        <img
+          src="./outros/botaoinicial.png"
+          alt="próximo.inicio"
+          width="20%"
+        />
+      </a>
+    </div>
+
+    <script>
+      if (sessionStorage.getItem("categkids_ok") !== "1") {
+        window.location.href = "index.html";
+      }
+    </script>
+  </body>
+</html>

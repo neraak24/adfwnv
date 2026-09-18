@@ -1,0 +1,76 @@
+/* BASE */
+body {
+  margin: 0;
+  background-color: powderblue;
+  font-family: sans-serif;
+  overflow: hidden;
+  color: #222;
+}
+
+/* TÍTULO */
+.title {
+  font-size: 1.5rem;
+  text-align: center;
+  font-family: sans-serif;
+  margin-top: 20px;
+}
+
+/* CONTAINER onde as cartas ficam (posicionamento absoluto, mesma mecânica do adf) */
+.container {
+  position: relative;
+  width: 100%;
+  height: 75vh;
+}
+
+/* CARTAS ARRASTÁVEIS */
+.dragme {
+  position: absolute;
+  cursor: move;
+  width: 246px;
+  max-width: 100%;
+  height: auto;
+  transition: transform 0.15s ease;
+}
+
+.dragme:active {
+  transform: scale(1.05);
+}
+
+/* BOTÃO DE PRÓXIMA PÁGINA */
+.linkContainer {
+  position: fixed;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0;
+  text-align: right;
+}
+
+.link {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.link:hover {
+  transform: scale(1.08);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+}
+
+/* BOTÃO INICIAL (home) */
+.linkinicio {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.linkinicio img {
+  height: auto;
+  display: block;
+}
