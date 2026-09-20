@@ -43,15 +43,24 @@ body {
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
 }
 
-/* NUMERAÇÃO DE POSIÇÃO (só aparece quando as cartas ficam em 2 linhas,
-   pra indicar que a leitura segue da 1ª linha pra 2ª) */
+/* CAIXAS DE POSIÇÃO (só aparecem quando as cartas ficam em 2 linhas,
+   mostrando onde cada carta pode ir e deixando clara a ordem 1ª→2ª linha) */
+.slot-caixa {
+  position: absolute;
+  background: #dde2e8;
+  border-radius: 18px;
+  z-index: 0;
+}
+
 .slot-numero {
   position: absolute;
+  top: -10px;
+  left: -10px;
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #d9dee5;
-  color: #5a6472;
+  background: #c3cad2;
+  color: #4d5661;
   font-size: 12px;
   font-weight: 700;
   display: flex;

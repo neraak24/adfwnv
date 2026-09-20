@@ -67,18 +67,24 @@ function calcularSlots() {
   return { cardWidth: cardWidth, rows: rows };
 }
 
-function numerarSlots(rows) {
-  // Com mais de uma linha, marca discretamente a posição de cada carta
-  // (1, 2, 3...) para deixar claro que a leitura segue da 1ª linha para a 2ª.
-  if (rows <= 1) return;
+function numerarSlots(rows, cardWidth) {
+  // Caixa do tamanho da carta atrás de cada posição, com o número no
+  // canto — mostra onde cada carta pode ir e a ordem de leitura.
   var container = document.querySelector(".container");
   slots.forEach(function (s, i) {
-    var tag = document.createElement("div");
-    tag.className = "slot-numero";
-    tag.textContent = i + 1;
-    tag.style.left = (s.x - 12) + "px";
-    tag.style.top = (s.y - 12) + "px";
-    container.appendChild(tag);
+    var caixa = document.createElement("div");
+    caixa.className = "slot-caixa";
+    caixa.style.left = s.x + "px";
+    caixa.style.top = s.y + "px";
+    caixa.style.width = cardWidth + "px";
+    caixa.style.height = cardWidth + "px";
+
+    var numero = document.createElement("div");
+    numero.className = "slot-numero";
+    numero.textContent = i + 1;
+    caixa.appendChild(numero);
+
+    container.appendChild(caixa);
   });
 }
 
@@ -148,7 +154,7 @@ window.onload = function () {
   cards = Array.from(document.querySelectorAll(".dragme"));
   var resultado = calcularSlots();
   snapThreshold = resultado.cardWidth * 0.6;
-  numerarSlots(resultado.rows);
+  numerarSlots(resultado.rows, resultado.cardWidth);
 
   cards.forEach(function (img, i) {
     img.dataset.slot = i;
