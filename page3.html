@@ -7,6 +7,7 @@
 </head>
 
 <body>
+
   <div class="container">
       <img src="./gato/gato1.png" alt="drag-and-drop image script" title="drag-and-drop image script" class="dragme" data-order="1">
       <img src="./gato/gato2.png" alt="drag-and-drop image script" title="drag-and-drop image script" class="dragme" data-order="2">
@@ -21,7 +22,7 @@
   </div>
 
 <script>
-let highestZ = 1;
+let highestZ = 10;
 let drag = false;
 let dragTarget = null;
 let offsetX, offsetY, coordX, coordY;
@@ -29,30 +30,54 @@ let cards = [];
 let slots = [];
 
 function calcularSlots() {
-  const cardWidth = 246;
-  const maxSpacing = 280;
-  const minSpacing = 150;
+  const baseCardWidth = 230;
+  const gapX = 44;
+  const gapY = 210;
   const margem = 60;
-  const disponivel = window.innerWidth - margem;
-  let spacingX = Math.min(maxSpacing, disponivel / cards.length);
-  spacingX = Math.max(minSpacing, spacingX);
+  const startY = 150;
 
-  // se o espaçamento ficar menor que a carta, reduz a largura das cartas
-  const largura = spacingX < cardWidth + 16 ? Math.max(140, spacingX - 16) : cardWidth;
+  const n = cards.length;
+  const rows = n > 4 ? 2 : 1;
+  const cols = Math.ceil(n / rows);
+
+  // largura da carta: só reduz se não couber na tela
+  let cardWidth = baseCardWidth;
+  const larguraNecessaria = cols * cardWidth + (cols - 1) * gapX + margem;
+  if (larguraNecessaria > window.innerWidth) {
+    cardWidth = Math.max(150, (window.innerWidth - margem - (cols - 1) * gapX) / cols);
+  }
   cards.forEach(function (c) {
     var fator = parseFloat(c.dataset.scale) || 1;
-    c.style.width = (largura * fator) + "px";
+    c.style.width = (cardWidth * fator) + "px";
   });
-
-  const totalWidth = spacingX * (cards.length - 1) + largura;
-  const startX = (window.innerWidth - totalWidth) / 2;
-  const startY = 180;
 
   slots = [];
-  cards.forEach(function (img, i) {
-    slots.push({ x: startX + i * spacingX, y: startY });
+  var restante = n;
+  for (var r = 0; r < rows; r++) {
+    var itensNaLinha = Math.min(cols, restante);
+    var larguraLinha = itensNaLinha * cardWidth + (itensNaLinha - 1) * gapX;
+    var startX = (window.innerWidth - larguraLinha) / 2;
+    for (var c2 = 0; c2 < itensNaLinha; c2++) {
+      slots.push({ x: startX + c2 * (cardWidth + gapX), y: startY + r * gapY });
+    }
+    restante -= itensNaLinha;
+  }
+  return { cardWidth: cardWidth, rows: rows };
+}
+
+function numerarSlots(rows) {
+  // Com mais de uma linha, marca discretamente a posição de cada carta
+  // (1, 2, 3...) para deixar claro que a leitura segue da 1ª linha para a 2ª.
+  if (rows <= 1) return;
+  var container = document.querySelector(".container");
+  slots.forEach(function (s, i) {
+    var tag = document.createElement("div");
+    tag.className = "slot-numero";
+    tag.textContent = i + 1;
+    tag.style.left = (s.x - 12) + "px";
+    tag.style.top = (s.y - 12) + "px";
+    container.appendChild(tag);
   });
-  return spacingX;
 }
 
 function startDrag(e) {
@@ -119,8 +144,9 @@ window.onload = function () {
   document.addEventListener("mouseup", stopDrag);
 
   cards = Array.from(document.querySelectorAll(".dragme"));
-  var spacing = calcularSlots();
-  snapThreshold = spacing * 0.55;
+  var resultado = calcularSlots();
+  snapThreshold = resultado.cardWidth * 0.6;
+  numerarSlots(resultado.rows);
 
   cards.forEach(function (img, i) {
     img.dataset.slot = i;
